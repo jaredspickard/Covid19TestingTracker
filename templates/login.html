@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <br>
+    <div class="card mx-auto" style="max-width:400px">
+        <div class="card-header bg-white">
+            <h1>Log In</h1>
+        </div>
+        <div class="card-body mb-0">
+            <form action="" method="post" novalidate class="login-form mx-auto">
+                {{ form.hidden_tag() }}
+                <p>
+                    {{ form.username.label(class='test-class') }}<br>
+                    {{ form.username(placeholder='Username', size=32, class='login-input') }}<br>
+                    {% for error in form.username.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>
+                    {{ form.password.label }}<br>
+                    {{ form.password(placeholder='Password', size=32) }}<br>
+                    {% for error in form.password.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p class="mb-0">{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+                <p class="mb-0">{{ form.submit(class='btn btn-dark') }}</p>
+            </form>
+        </div>
+        <div class="card-footer bg-white">
+            <p class="mb-0">New User? <a href="{{ url_for('register') }}">Click to Register!</a></p>
+        </div>
+    </div>
+    <br>
+{% endblock %}

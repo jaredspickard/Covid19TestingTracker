@@ -3,6 +3,7 @@
 <head>
     <!-- Fonts and Icons -->
     <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <link rel="icon" href="{{ url_for('static', filename='images/mask.png') }}" type="image/png">
     <!--link rel="icon" href="{{ url_for('static', filename='images/board.png') }}" type="image/png"-->
 
     <!-- Bootstrap -->
@@ -10,16 +11,16 @@
     <!-- Custom CSS-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
 
-    <title>Connect4AI</title>
+    <title>&nbsp;COVID19 Testing Tracker</title>
 </head>
 
-<body style="font-family:Montserrat">
+<body style="font-family:Montserrat; text-align:center" class="bg-light">
     <!----------------------------- Hidden Tags ---------------------------------->
     <input type="hidden" id="selectedPage">
     <!------------------------------- Header ------------------------------------->
-    <nav class="navbar navbar-expand-lg navbar-light bg-warning">
-        <a class="navbar-brand" href="{{ url_for('index') }}" style="margin:0.5rem">
-            <h4 style="font-weight:500">C4AI</h4>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{{ url_for('index') }}" style="margin:0rem">
+            <h4 style="font-weight:500"><img style="max-width: 45px;" src="{{ url_for('static', filename='images/mask.png') }}">&nbsp;&nbsp;COVID19 Testing Tracker</h4>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,16 +32,28 @@
                     <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                 </li>
                 <li id="leaderboardOption" class="nav-item" onclick="clickLeaderboard()">
-                    <a class="nav-link" href="{{ url_for('leaderboard') }}">Leaderboard</a>
+                    <a class="nav-link" href="{{ url_for('index') }}">My Profile</a>
+                </li>
+                <li id="leaderboardOption" class="nav-item" onclick="clickLeaderboard()">
+                    <a class="nav-link" href="{{ url_for('index') }}">Logout</a>
                 </li>
             </ul>
         </div>
     </nav>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
     {% block content %}{% endblock %}
 
     <!------------------------------- Footer ------------------------------------->
 
-    <div class="bg-warning footer">
+    <div class="bg-dark footer text-light">
         <div class="row">
             <div class="col" style="text-align: center;">
                 <p style="font-size: 0.9rem; margin-top:1rem;">Copyright &copy;2020 All rights reserved &nbsp;|&nbsp; View the source code <a target="_blank" href="https://github.com/jaredspickard/Connect4AI">here</a>&nbsp; | &nbsp;See more of my work and experience at <a target="_blank" href="http://jaredspickard.com">jaredspickard.com</a></p>
