@@ -1,3 +1,10 @@
+
+# I was having a lot of issues with circular imports as well as finding consistent answers
+# regarding the deployment of more complex flask apps on Google App Engine, so I am currently
+# developing this project in a single file in order to get it up and running as quickly as possible.
+# I intend to explore the file structure more in the future and hopefully get it working then.
+
+
 from flask import Flask, render_template, url_for, request, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -74,7 +81,7 @@ def load_user(id):
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 
 class LoginForm(FlaskForm):
     """ Form to be used to return users to the login page """
@@ -82,6 +89,25 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
+
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    repeat_password = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Register')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user is not None:
+            raise ValidationError('This username already exists. Please select a different username.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError('This email is already in use. Please select a different email.')
 
 """ --------------------------- Routes (main.py or routes.py) -------------------------- """
 
@@ -113,10 +139,19 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    form = LoginForm()
-    return render_template('register.html', title='Log In', form=form)
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data, first_name=form.first_name.data, last_name=form.last_name.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you have been successfully registered into the system!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
 
 
 """ ------------------------- Run App Locally ------------------------- """
