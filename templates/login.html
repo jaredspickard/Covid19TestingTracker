@@ -10,20 +10,19 @@
             <form action="" method="post" novalidate class="login-form mx-auto">
                 {{ form.hidden_tag() }}
                 <p>
-                    {{ form.username.label(class='test-class') }}<br>
-                    {{ form.username(placeholder='Username', size=32, class='login-input') }}<br>
+                    <br>
+                    {{ form.username(placeholder='Username', size=32, class='form-control') }}<br>
                     {% for error in form.username.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
-                <p>
-                    {{ form.password.label }}<br>
-                    {{ form.password(placeholder='Password', size=32) }}<br>
+                <p class="mb-0">
+                    {{ form.password(placeholder='Password', size=32, class='form-control') }}<br>
                     {% for error in form.password.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
                 </p>
-                <p class="mb-0">{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+                <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
                 <p class="mb-0">{{ form.submit(class='btn btn-dark') }}</p>
             </form>
         </div>

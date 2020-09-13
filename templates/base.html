@@ -15,36 +15,56 @@
 </head>
 
 <body style="font-family:Montserrat; text-align:center" class="bg-light">
+    <div class="accomodate-footer">
     <!----------------------------- Hidden Tags ---------------------------------->
     <input type="hidden" id="selectedPage">
     <!------------------------------- Header ------------------------------------->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="{{ url_for('index') }}" style="margin:0rem">
-            <h4 style="font-weight:500"><img style="max-width: 45px;" src="{{ url_for('static', filename='images/mask.png') }}">&nbsp;&nbsp;COVID19 Testing Tracker</h4>
+            <img style="max-width: 45px;" src="{{ url_for('static', filename='images/mask.png') }}">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto" style="text-align: center;">
+            &nbsp;&nbsp;&nbsp;
+            {% if current_user.is_anonymous %}
+            <h3 class="mb-0" style="color: rgba(255,255,255,.7)">COVID 19 Testing Tracker</h3>
+            {% else %}
+            <ul class="navbar-nav mr-auto" style="text-align: center;">
                 <li id="homeOption" class="nav-item">
                     <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                 </li>
-                {% if current_user.is_anonymous %}
                 <li id="leaderboardOption" class="nav-item">
+                    <a class="nav-link" href="{{ url_for('reportTest') }}">Report a Test</a>
+                </li>
+                <li id="leaderboardOption" class="nav-item">
+                    <a class="nav-link" href="{{ url_for('resources') }}">Resources</a>
+                </li>
+            </ul>
+            {% endif %}
+            <ul class="navbar-nav ml-auto" style="text-align: center;">
+                <li id="navbarProfile" class="nav-item">
+                    {% if current_user.is_anonymous %}
                     <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                    {% else %}
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ current_user.first_name }}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right mr-2" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{{ url_for('profile') }}">My Profile</a>
+                        <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+                    </div>
+                    {% endif %}
                 </li>
-                {% else %}
-                <li id="leaderboardOption" class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                </li>
-                {% endif %}
             </ul>
         </div>
     </nav>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
+    <br>
     <ul>
         {% for message in messages %}
         <li>{{ message }}</li>
@@ -53,13 +73,13 @@
     {% endif %}
     {% endwith %}
     {% block content %}{% endblock %}
-
+    </div>
     <!------------------------------- Footer ------------------------------------->
 
-    <div class="bg-dark footer text-light">
+    <div class="bg-dark footer footer-bottom" style="color: rgba(255,255,255,.5);">
         <div class="row">
             <div class="col" style="text-align: center;">
-                <p style="font-size: 0.9rem; margin-top:1rem;">Copyright &copy;2020 All rights reserved &nbsp;|&nbsp; View the source code <a target="_blank" href="https://github.com/jaredspickard/Connect4AI">here</a>&nbsp; | &nbsp;See more of my work and experience at <a target="_blank" href="http://jaredspickard.com">jaredspickard.com</a></p>
+                <p style="font-size: 0.9rem; margin-top:1rem;">Copyright &copy;2020 All rights reserved &nbsp;|&nbsp; Be responsible and wear a mask! </a></p>
             </div>
         </div>
     </div>

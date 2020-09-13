@@ -1,5 +1,5 @@
 
-# I was having a lot of issues with circular imports as well as finding consistent answers
+# I was having some issues with circular imports as well as finding consistent answers
 # regarding the deployment of more complex flask apps on Google App Engine, so I am currently
 # developing this project in a single file in order to get it up and running as quickly as possible.
 # I intend to explore the file structure more in the future and hopefully get it working then.
@@ -36,6 +36,7 @@ login.login_view = 'login'
 from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from hashlib import md5
 
 class User(UserMixin, db.Model):
     """ Class representing a User """
@@ -59,6 +60,10 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         """ Function that checks if the hash of the inputted password matches the stored password hash """
         return check_password_hash(self.password_hash, password)
+
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
 
 
 class CovidTest(db.Model):
@@ -109,13 +114,30 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('This email is already in use. Please select a different email.')
 
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    submit = SubmitField('Save Changes')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user is not None and user.id != current_user.id:
+            raise ValidationError('This username already exists. Please select a different username.')
+    
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None and user.id != current_user.id:
+            raise ValidationError('This email is already in use. Please select a different email.')
+
 """ --------------------------- Routes (main.py or routes.py) -------------------------- """
 
 @app.route('/')
 @app.route('/index')
 @login_required
 def index():
-    return render_template('index.html')
+    return render_template('index.html', title='Home')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -146,12 +168,45 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data, first_name=form.first_name.data, last_name=form.last_name.data)
-        user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you have been successfully registered into the system!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+@app.route('/reportTest')
+@login_required
+def reportTest():
+    return render_template('reportTest.html', title='Report a Test')
+
+@app.route('/resources')
+@login_required
+def resources():
+    return render_template('resources.html', title='Resources')
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        print("validate on submit")
+        user = User.query.filter_by(id=current_user.id).first()
+        print(user)
+        user.username = form.username.data
+        user.email = form.email.data
+        user.first_name = form.first_name.data
+        user.last_name = form.last_name.data
+        db.session.commit()
+        flash('Your profile has been updated.')
+        return redirect(url_for('profile'))
+    elif request.method == 'GET':
+        print("just a GET request")
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        form.first_name.data = current_user.first_name
+        form.last_name.data = current_user.last_name
+    return render_template('profile.html', title='My Profile', form=form)
+
 
 
 """ ------------------------- Run App Locally ------------------------- """
