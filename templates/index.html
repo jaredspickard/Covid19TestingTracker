@@ -1,5 +1,100 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Hello, {{ current_user.first_name }}</h1>
+<div class="page-content mx-auto"><br>
+    <div class="row mb-4">
+        <div class="col" style="text-align:left">
+            <h1>Hello, {{ current_user.first_name }}</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-lg-5 col-md-5 col-sm-12 col-12">
+            <div class="card mb-4">
+                <div class="card-body" style="text-align:center">
+                    <h5 class="card-title" style="text-align:left">Report a Test</h5><hr class="mb-4">
+                    <div class="btn-group btn-group-toggle mb-3" data-toggle="buttons">
+                        <label class="btn btn-outline-dark btn-sm active" onclick="toggleReportForm('schedule')">
+                          <input type="radio" name="options" id="option1" checked> Test Scheduled
+                        </label>
+                        <label class="btn btn-outline-dark btn-sm" onclick="toggleReportForm('result')">
+                          <input type="radio" name="options" id="option2"> Test Results
+                        </label>
+                    </div>
+                    <form id="scheduleForm" action="" method="post" novalidate class="login-form mx-auto">
+                        {{ sched_form.hidden_tag() }}
+                        <p class="mb-1" style="text-align:left">
+                            {{ sched_form.scheduled_date.label(class="mb-1") }} of Test
+                            {{ sched_form.scheduled_date(class="form-control", placeholder="MM/DD/YYYY", value="") }}<br>
+                            {% for error in sched_form.scheduled_date.errors %}
+                                <span style="color: red;">[{{ error }}]</span>
+                            {% endfor %}
+                        </p>
+                        <p class="mb-0">{{ sched_form.submit(class='btn btn-dark') }}</p>
+                    </form>
+                    <form id="resultForm" action="" method="post" novalidate class="login-form mx-auto" style="display:none">
+                        {{ result_form.hidden_tag() }}
+                        <p class="mb-0" style="text-align:left">
+                            {{ result_form.scheduled_dates.label }}
+                            {{ result_form.scheduled_dates(class="custom-select") }}
+                        </p><br>
+                        <p class="mb-0" style="text-align:left">
+                            {{ result_form.results.label }}<br>
+                            {% for subfield in result_form.results %}
+                                <div class="form-check" style="text-align:left">
+                                    {{ subfield }}
+                                    {{ subfield.label }}
+                                </div>
+                            {% endfor %}<br>
+                            {% for error in result_form.results.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                            {% endfor %}
+                        </p>
+                        <p class="mb-0">{{ result_form.submit(class='btn btn-dark') }}</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col col-lg-7 col-md-7 col-sm-12 col-12">
+            <div class="card mb-4">
+                <div class="card-body" style="text-align:left">
+                    <h5 class="card-title">My Testing History</h5><hr>
+                    <p>Total Tests Scheduled: {{ user_info.total_scheduled }}</p>
+                    <p class="mb-1">Test Results</p>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ user_info.positive_percentage }}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ user_info.negative_percentage }}" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ user_info.unreported_percentage }}" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p><span class="dot" style="background-color: #DC3545"></span>&nbsp;Positive ({{ user_info.positive_count }})</p>
+                    <p><span class="dot" style="background-color: #28A745"></span>&nbsp;Negative/Not Detected ({{ user_info.negative_count }})</p>
+                    <p class="mb-0"><span class="dot" style="background-color: #FFC107"></span>&nbsp;Not Reported ({{ user_info.unreported_count }})</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-lg-8 col-md-8 col-sm-12 col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align:left">{{ current_user.organization }} Testing History</h5><hr>
+                    Testing Information
+                </div>
+            </div>
+        </div>
+        <div class="col col-lg-4 col-md-4 col-sm-12 col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align:left">Upcoming Tests</h5><hr>
+                    {% if user_info.upcoming_tests %}
+                        {% for test in user_info.upcoming_tests %}
+                            <p>{{ test.scheduled_date }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>No Upcoming Tests</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

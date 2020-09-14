@@ -1,6 +1,7 @@
 .page-content {
     width: 94%;
     max-width: 1200px;
+    text-align: left;
 }
 
 li::marker {
@@ -21,4 +22,11 @@ li::marker {
 .footer-bottom {
     width:100%;
     height:53px;
+}
+
+.dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: inline-block;
 }

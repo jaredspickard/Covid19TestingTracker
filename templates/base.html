@@ -4,7 +4,6 @@
     <!-- Fonts and Icons -->
     <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
     <link rel="icon" href="{{ url_for('static', filename='images/mask.ico') }}" type="image/png">
-    <!--link rel="icon" href="{{ url_for('static', filename='images/board.png') }}" type="image/png"-->
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -38,10 +37,10 @@
                     <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                 </li>
                 <li id="leaderboardOption" class="nav-item">
-                    <a class="nav-link" href="{{ url_for('reportTest') }}">Report a Test</a>
+                    <a class="nav-link" href="{{ url_for('resources') }}">Resources</a>
                 </li>
                 <li id="leaderboardOption" class="nav-item">
-                    <a class="nav-link" href="{{ url_for('resources') }}">Resources</a>
+                    <a class="nav-link" href="{{ url_for('help') }}">Help</a>
                 </li>
             </ul>
             {% endif %}
@@ -55,7 +54,7 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right mr-2" aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="{{ url_for('profile') }}">My Profile</a>
-                        <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+                        <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a>
                     </div>
                     {% endif %}
                 </li>
@@ -100,7 +99,6 @@
 
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='javascript/index.js') }}"></script>
-    <script src="{{ url_for('static', filename='javascript/base.js') }}"></script>
 </body>
 
 </html>
