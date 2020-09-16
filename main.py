@@ -41,13 +41,14 @@ from hashlib import md5
 class User(UserMixin, db.Model):
     """ Class representing a User """
     id = db.Column(db.Integer, primary_key=True)
-    council = db.Column(db.String(64), index=True)  # ifc, phc, etc.
     organization = db.Column(db.String(64), index=True) # phi kappa psi, delta gamma, etc
+    is_admin = db.Column(db.Boolean, index=True, default=False)
     username = db.Column(db.String(64), index=True, unique=True)
     first_name = db.Column(db.String(64), index=True)
     last_name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    is_verified = db.Column(db.Boolean, index=True, default=False)
     covid_tests = db.relationship('CovidTest', backref='user', lazy='dynamic')
 
     def __repr__(self):
@@ -235,6 +236,15 @@ def resources():
 def help():
     return render_template('help.html', title='Help')
 
+@app.route('/admin')
+@login_required
+def admin():
+    if current_user.is_admin:
+        return render_template('admin.html', title='Manage Organization')
+    else:
+        flash("You must be an administrator for your organization to view this page.")
+        return redirect(url_for('index'))
+
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
@@ -262,11 +272,30 @@ def populate_user_info():
     """ Helper function that populates and returns a dictionary with the appropriate user information """
     # get a list of all of the scheduled tests for this given user
     scheduled_tests = CovidTest.query.filter_by(userid=current_user.id).order_by(CovidTest.scheduled_date.asc()).all()
+    total_scheduled = len(scheduled_tests)
     # get a list of all scheduled tests in the future (date is today or later)
     upcoming_tests = CovidTest.query.filter(CovidTest.userid==current_user.id, CovidTest.scheduled_date >= datetime.now().date()).order_by(CovidTest.scheduled_date.asc()).all()
-    print(upcoming_tests)
+    # get the number of positive, negative, inconclusive, and not reported tests & their relative percentages
+    if (total_scheduled > 0):
+        positive_count = CovidTest.query.filter(CovidTest.userid==current_user.id, CovidTest.result=="Positive").count()
+        positive_percentage = str(100*positive_count / total_scheduled) + "%"
+        negative_count = CovidTest.query.filter(CovidTest.userid==current_user.id, CovidTest.result=="Negative/Not Detected").count()
+        negative_percentage = str(100*negative_count / total_scheduled) + "%"
+        inconclusive_count = CovidTest.query.filter(CovidTest.userid==current_user.id, CovidTest.result=="Inconclusive").count()
+        inconclusive_percentage = str(100*inconclusive_count / total_scheduled) + "%"
+        unreported_count = CovidTest.query.filter(CovidTest.userid==current_user.id, CovidTest.result=="Result Not Received").count()
+        unreported_percentage = str(100*unreported_count / total_scheduled) + "%"
+    else:
+        positive_count = 0
+        positive_percentage = "0%"
+        negative_count = 0
+        negative_percentage = "0%"
+        inconclusive_count = 0
+        inconclusive_percentage = "0%"
+        unreported_count = 0
+        unreported_percentage = "0%"
     #tests = [CovidTest(id=4,userid=2, result="Result Not Received", scheduled_date=date(2020, 9, 13)), CovidTest(id=5,userid=2, result="Result Not Received", scheduled_date=date(2020, 9, 15)), CovidTest(id=6,userid=2, result="Negative", scheduled_date=date(2020, 9, 14))]
-    user_info = {"scheduled_tests": scheduled_tests, "total_scheduled": len(scheduled_tests), "upcoming_tests": upcoming_tests, "positive_count": 8, "positive_percentage": "15%", "negative_count": 12, "negative_percentage": "60%", "unreported_count": 10, "unreported_percentage": "25%"}
+    user_info = {"scheduled_tests": scheduled_tests, "total_scheduled": total_scheduled, "upcoming_tests": upcoming_tests, "positive_count": positive_count, "positive_percentage": positive_percentage, "negative_count": negative_count, "negative_percentage": negative_percentage, "inconclusive_count": inconclusive_count, "inconclusive_percentage": inconclusive_percentage, "unreported_count": unreported_count, "unreported_percentage": unreported_percentage}
     return user_info
 
 def populate_organization_info():

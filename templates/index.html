@@ -22,7 +22,7 @@
                     </div>
                     <form id="scheduleForm" action="" method="post" novalidate class="login-form mx-auto">
                         {{ sched_form.hidden_tag() }}
-                        <p class="mb-1" style="text-align:left">
+                        <p class="mb-2" style="text-align:left">
                             {{ sched_form.scheduled_date.label(class="mb-1") }} of Test
                             {{ sched_form.scheduled_date(class="form-control", placeholder="MM/DD/YYYY", value="") }}<br>
                             {% for error in sched_form.scheduled_date.errors %}
@@ -36,6 +36,9 @@
                         <p class="mb-0" style="text-align:left">
                             {{ result_form.scheduled_dates.label }}
                             {{ result_form.scheduled_dates(class="custom-select") }}
+                            {% for error in result_form.scheduled_dates.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                            {% endfor %}
                         </p><br>
                         <p class="mb-0" style="text-align:left">
                             {{ result_form.results.label }}<br>
@@ -64,10 +67,12 @@
                         <div class="progress-bar bg-danger" role="progressbar" style="width: {{ user_info.positive_percentage }}" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
                         <div class="progress-bar bg-success" role="progressbar" style="width: {{ user_info.negative_percentage }}" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
                         <div class="progress-bar bg-warning" role="progressbar" style="width: {{ user_info.unreported_percentage }}" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ user_info.inconclusive_percentage }}" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                    <p><span class="dot" style="background-color: #DC3545"></span>&nbsp;Positive ({{ user_info.positive_count }})</p>
-                    <p><span class="dot" style="background-color: #28A745"></span>&nbsp;Negative/Not Detected ({{ user_info.negative_count }})</p>
-                    <p class="mb-0"><span class="dot" style="background-color: #FFC107"></span>&nbsp;Not Reported ({{ user_info.unreported_count }})</p>
+                    <p class="mb-1"><span class="dot" style="background-color: #dc3545"></span>&nbsp;Positive ({{ user_info.positive_count }})</p>
+                    <p class="mb-1"><span class="dot" style="background-color: #28a745"></span>&nbsp;Negative/Not Detected ({{ user_info.negative_count }})</p>
+                    <p class="mb-1"><span class="dot" style="background-color: #17a2b8"></span>&nbsp;Inconclusive ({{ user_info.inconclusive_count }})</p>
+                    <p class="mb-0"><span class="dot" style="background-color: #ffc107"></span>&nbsp;Not Reported ({{ user_info.unreported_count }})</p>
                 </div>
             </div>
         </div>

@@ -50,10 +50,13 @@
                     <a class="nav-link" href="{{ url_for('login') }}">Login</a>
                     {% else %}
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{ current_user.first_name }}
+                        {{ current_user.first_name }} {% if current_user.is_admin %}(Admin){% endif %}
                     </a>
                     <div class="dropdown-menu dropdown-menu-right mr-2" aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="{{ url_for('profile') }}">My Profile</a>
+                        {% if current_user.is_admin %}
+                            <a class="dropdown-item" href="{{ url_for('admin') }}">Manage {{ current_user.organization }}</a>
+                        {% endif %}
                         <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a>
                     </div>
                     {% endif %}

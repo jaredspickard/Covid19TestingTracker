@@ -1,80 +1,83 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <br>
-    <div class="page-content mx-auto">
-        <div class="card">
-            <div class="card-header bg-white" style="justify-content: space-between; display: flex">
-                <h1>My Profile</h1>
-                <button type="button" class="btn btn-dark btn-icon my-auto" data-toggle="modal" data-target="#editProfileModal">
-                    <span class="btn-inner--icon"><i class="far fa-edit"></i></span>
-                    <span class="btn-inner--text">Edit Profile</span>
+<br>
+<div class="page-content mx-auto">
+    <div class="card">
+        <div class="card-header bg-white" style="justify-content: space-between; display: flex">
+            <h1>My Profile</h1>
+            <button type="button" class="btn btn-dark btn-icon my-auto" data-toggle="modal" data-target="#editProfileModal">
+                <span class="btn-inner--icon"><i class="far fa-edit"></i></span>
+                <span class="btn-inner--text">Edit Profile</span>
+            </button>
+        </div>
+        <div class="card-body mb-0">
+            <div class="row">
+                <div class="col col-lg-3 col-md-3 col-sm-3 col-12">
+                    <img src="{{ current_user.avatar(128) }}"><br><br>
+                    <a href="https://en.gravatar.com"><small>Change Profile Picture</small></a>
+                </div>
+                <div class="col" style="text-align:left">
+                    <h5><span style="opacity: 0.7;"> Username: </span>{{ current_user.username }}</h5>
+                    <h5><span style="opacity: 0.7;"> Full Name: </span>{{ current_user.first_name }} {{ current_user.last_name }}</h5>
+                    <h5><span style="opacity: 0.7;"> Email: </span>{{ current_user.email }}</h5>
+                    <h5><span style="opacity: 0.7;"> Organization: </span>{{ current_user.organization }}</h5>
+                </div>
+                <ul> Things to add
+                    <li>Email Settings</li>
+                    <li>Change Password?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+
+<!-- Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Edit Profile</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="card-body mb-0">
-                <div class="row">
-                    <div class="col col-lg-3 col-md-3 col-sm-3 col-12">
-                        <img src="{{ current_user.avatar(128) }}"><br><br>
-                        <a href="https://en.gravatar.com"><small>Change Profile Picture</small></a>
-                    </div>
-                    <div class="col" style="text-align:left">
-                        <h5><span style="opacity: 0.7;"> Username: </span>{{ current_user.username }}</h5>
-                        <h5><span style="opacity: 0.7;"> Full Name: </span>{{ current_user.first_name }} {{ current_user.last_name }}</h5>
-                        <h5><span style="opacity: 0.7;"> Email: </span>{{ current_user.email }}</h5>
-                        <h5><span style="opacity: 0.7;"> Council: </span>{{ current_user.council }}</h5>
-                        <h5><span style="opacity: 0.7;"> Organization: </span>{{ current_user.organization }}</h5>
-                    </div>
-                </div>
+            <div class="modal-body">
+                <form action="" method="post" novalidate class="login-form mx-auto">
+                    {{ form.hidden_tag() }}
+                    <p class="mb-0" style="text-align:left">
+                        {{ form.username.label }}
+                        {{ form.username(size=32, class='form-control') }}<br>
+                        {% for error in form.username.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="mb-0" style="text-align:left">
+                        {{ form.email.label }}
+                        {{ form.email(size=32, class='form-control') }}<br>
+                        {% for error in form.email.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="mb-0" style="text-align:left">
+                        {{ form.first_name.label }}
+                        {{ form.first_name(size=32, class='form-control') }}<br>
+                        {% for error in form.first_name.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="mb-0" style="text-align:left">
+                        {{ form.last_name.label }}
+                        {{ form.last_name(size=32, class='form-control') }}<br>
+                        {% for error in form.last_name.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="mb-0">{{ form.submit(class='btn btn-dark') }}</p>
+                </form>
             </div>
         </div>
     </div>
-    <br>
-
-    <!-- Modal -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel">Edit Profile</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form action="" method="post" novalidate class="login-form mx-auto">
-                        {{ form.hidden_tag() }}
-                        <p class="mb-0" style="text-align:left">
-                            {{ form.username.label }}
-                            {{ form.username(size=32, class='form-control') }}<br>
-                            {% for error in form.username.errors %}
-                            <span style="color: red;">[{{ error }}]</span>
-                            {% endfor %}
-                        </p>
-                        <p class="mb-0" style="text-align:left">
-                            {{ form.email.label }}
-                            {{ form.email(size=32, class='form-control') }}<br>
-                            {% for error in form.email.errors %}
-                            <span style="color: red;">[{{ error }}]</span>
-                            {% endfor %}
-                        </p>
-                        <p class="mb-0" style="text-align:left">
-                            {{ form.first_name.label }}
-                            {{ form.first_name(size=32, class='form-control') }}<br>
-                            {% for error in form.first_name.errors %}
-                            <span style="color: red;">[{{ error }}]</span>
-                            {% endfor %}
-                        </p>
-                        <p class="mb-0" style="text-align:left">
-                            {{ form.last_name.label }}
-                            {{ form.last_name(size=32, class='form-control') }}<br>
-                            {% for error in form.last_name.errors %}
-                            <span style="color: red;">[{{ error }}]</span>
-                            {% endfor %}
-                        </p>
-                        <p class="mb-0">{{ form.submit(class='btn btn-dark') }}</p>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>
 {% endblock %}
