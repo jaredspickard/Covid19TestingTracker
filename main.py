@@ -159,6 +159,11 @@ class ReportTestingResultsForm(FlaskForm):
     results = RadioField('Results', validators=[DataRequired()], choices=[('Positive','Positive'), ('Negative/Not Detected', 'Negative/Not Detected'), ('Inconclusive', 'Inconclusive')])
     submit = SubmitField('Report Test Results')
 
+class DeleteUserAccountForm(FlaskForm):
+    userid = StringField('User ID', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired()])
+    submit = SubmitField('Delete User')
+
 """ --------------------------- Routes (main.py or routes.py) -------------------------- """
 
 @app.route('/', methods=['GET', 'POST'])
@@ -239,8 +244,11 @@ def help():
 @app.route('/admin')
 @login_required
 def admin():
+    form = DeleteUserAccountForm()
+    admins = User.query.filter(User.is_admin==1,User.organization==current_user.organization).all()
+    members = User.query.filter(User.is_admin==0,User.organization==current_user.organization).all()
     if current_user.is_admin:
-        return render_template('admin.html', title='Manage Organization')
+        return render_template('admin.html', form=form, title='Manage Organization', admins=admins, members=members)
     else:
         flash("You must be an administrator for your organization to view this page.")
         return redirect(url_for('index'))
