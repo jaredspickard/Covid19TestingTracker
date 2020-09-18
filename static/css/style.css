@@ -41,3 +41,7 @@ li::marker {
     font-size: 20px;
     margin-bottom: 20px;
 }
+
+.admin-row {
+    border-style: solid;
+}

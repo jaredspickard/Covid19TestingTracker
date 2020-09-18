@@ -20,7 +20,7 @@
                           <input type="radio" name="options" id="option2"> Test Results
                         </label>
                     </div>
-                    <form id="scheduleForm" action="" method="post" novalidate class="login-form mx-auto">
+                    <form id="scheduleForm" action="" method="post" novalidate class="mx-auto">
                         {{ sched_form.hidden_tag() }}
                         <p class="mb-2" style="text-align:left">
                             {{ sched_form.scheduled_date.label(class="mb-1") }} of Test
@@ -31,7 +31,7 @@
                         </p>
                         <p class="mb-0">{{ sched_form.submit(class='btn btn-dark') }}</p>
                     </form>
-                    <form id="resultForm" action="" method="post" novalidate class="login-form mx-auto" style="display:none">
+                    <form id="resultForm" action="" method="post" novalidate class="mx-auto" style="display:none">
                         {{ result_form.hidden_tag() }}
                         <p class="mb-0" style="text-align:left">
                             {{ result_form.scheduled_dates.label }}

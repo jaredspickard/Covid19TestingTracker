@@ -13,3 +13,20 @@ function toggleReportForm(name) {
         document.getElementById("resultForm").style.display = "block";
     }
 }
+
+// ---------------------------- Functions for admin.js -------------------------------
+
+/*
+ * Function that populates hidden username tag and visible username display in the deleteUserAccountModal
+ */
+function openDeleteUserModal(username) {
+    document.getElementById("username").value = username;
+    document.getElementById("usernameVisible").innerHTML = username;
+}
+
+/*
+ * Function that populates hidden email tag and visible email display in the deleteUserAccountModal EmailUserModal
+ */
+function openEmailUserModal(email) {
+    document.getElementById("email").value = email;
+}
