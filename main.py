@@ -10,7 +10,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
-from sqlalchemy_utils.types.encrypted.encrypted_type import EncryptedType
+from flask_mail import Mail, Message
+from apscheduler.schedulers.background import BackgroundScheduler
+from flask_datepicker import datepicker
+#from sqlalchemy_utils.types.encrypted.encrypted_type import EncryptedType
 
 """ -------------------- Declare the Config object (config.py) -------------------- """
 
@@ -22,6 +25,14 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'jfH78-68fGHPohka!lhaouHKL'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = "phipsi.surveillancetesting"
+    MAIL_PASSWORD = "CalGamma2424"
+    MAIL_DEFAULT_SENDER = ['phipsi.surveillancetesting@gmail.com']
+
 
 """ -------------------- Initialize the application (main.py) -------------------- """
 
@@ -31,10 +42,13 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
+mail = Mail(app)
+datepicker(app)
+
 
 """ -------------------- Declare the models to be used (models.py) -------------------- """
 
-from datetime import date, datetime
+from datetime import date, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from hashlib import md5
@@ -42,19 +56,19 @@ from hashlib import md5
 class User(UserMixin, db.Model):
     """ Class representing a User """
     id = db.Column(db.Integer, primary_key=True)
-    organization = db.Column(db.String(64), index=True) # phi kappa psi, delta gamma, etc
-    is_admin = db.Column(db.Boolean, index=True, default=False) # boolean representing whether they're an admin
     username = db.Column(db.String(64), index=True, unique=True)
     first_name = db.Column(db.String(64), index=True)
     last_name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True, unique=True)
+    is_admin = db.Column(db.Boolean, index=True, default=False) # boolean representing whether they're an admin
     password_hash = db.Column(db.String(128)) 
+    organization = db.Column(db.String(64), index=True) # plan to delete this when I switch to Postgres
     is_verified = db.Column(db.Boolean()) # plan to delete this when I switch to Postgres
     covid_tests = db.relationship('CovidTest', backref='user', lazy='dynamic') # declares a one to many relationship between users and covid tests
 
     def __repr__(self):
         """ Function to define string representation of class """
-        return '<User {}>'.format(self.username)
+        return 'User {}'.format(self.username)
 
     def set_password(self, password):
         """ Function that sets the password_hash variable equal to the hash of the inputted password.
@@ -81,7 +95,7 @@ class CovidTest(db.Model):
 
     def __repr__(self):
         """ String representation of the CovidTest class """
-        return '<Test on {} came back: {}>'.format(self.scheduled_date, self.result)
+        return 'Test on {} came back: {}'.format(self.scheduled_date, self.result)
 
 @login.user_loader
 def load_user(id):
@@ -172,7 +186,7 @@ class ReportTestingScheduleForm(FlaskForm):
             #throw an error if not valid
             raise ValidationError('Please enter a valid date')
         #make sure the year is equal to the current year
-        if year != datetime.now().year:
+        if year != date.today().year:
             raise ValidationError('Please be sure to only report tests for the current year.')
 
     
@@ -184,15 +198,28 @@ class ReportTestingResultsForm(FlaskForm):
 
 class DeleteUserAccountForm(FlaskForm):
     """ Form to delete the account for a user """
-    username = StringField('Username', validators=[DataRequired()])
+    username_delete = StringField('Username', validators=[DataRequired()])
     submit = SubmitField('Permanently Delete User')
 
-class EmailUserForm(FlaskForm):
+class ChangeAdminStatusForm(FlaskForm):
+    """ Form to change the admin status of a user """
+    username_admin = StringField('Username', validators=[DataRequired()])
+    submit = SubmitField('Update Admin Status')
+
+class EmailForm(FlaskForm):
     """ Form for an admin to send an email to a user account """
     email = StringField('To', validators=[DataRequired()])
     subject = StringField('Subject')
     body = TextAreaField('Body')
     submit = SubmitField('Send Email')
+
+class ChangePasswordForm(FlaskForm):
+    """ Form to be used for users to register """
+    old_password = PasswordField('Old Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[DataRequired()])
+    # repeat password option, standard procedure for registering
+    repeat_password = PasswordField('Repeat New Password', validators=[DataRequired()])
+    submit = SubmitField('Change Password')
 
 """ --------------------------- Routes (main.py or routes.py) -------------------------- """
 
@@ -281,10 +308,8 @@ def register():
     form = RegistrationForm()
     # if the form is submitted...
     if form.validate_on_submit():
-        # hardcoded for my own organization
-        organization = "Phi Kappa Psi"
         # create a user with the inputted data
-        user = User(username=form.username.data, email=form.email.data, first_name=form.first_name.data, last_name=form.last_name.data, organization=organization)
+        user = User(username=form.username.data, email=form.email.data, first_name=form.first_name.data, last_name=form.last_name.data)
         # set the password for this account
         user.set_password(form.password.data)
         # add this user to the database
@@ -303,11 +328,19 @@ def resources():
     """ route to the resources page """
     return render_template('resources.html', title='Resources')
 
-@app.route('/help')
+@app.route('/help', methods=['GET', 'POST'])
 @login_required
 def help():
     """ route to the help page """
-    return render_template('help.html', title='Help')
+    form = EmailForm()
+    admins = User.query.filter(User.is_admin==1).all()
+    admin_emails = ",".join([admin.email for admin in admins])
+    if form.validate_on_submit():
+        msg = Message(subject=form.subject.data, sender='phipsi.surveillancetesting@gmail.com', cc=[current_user.email], recipients=form.email.data.split(','), body=form.body.data)
+        mail.send(msg)
+        flash("Email sent successfully")
+        return redirect(url_for('help'))
+    return render_template('help.html', title='Help', form=form, admin_emails=admin_emails)
 
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -315,18 +348,36 @@ def admin():
     """ route to the admin page, include logic to delete user accounts """
     # instantiate the necessary forms
     delete_form = DeleteUserAccountForm()
-    email_form = EmailUserForm()
-    # get a list of the admins and general members for the current user's organization
-    admins = User.query.filter(User.is_admin==1,User.organization==current_user.organization).all()
-    members = User.query.filter(User.is_admin==0,User.organization==current_user.organization).all()
+    email_form = EmailForm()
+    admin_form = ChangeAdminStatusForm()
+    # get a list of the admins and general members
+    admins = User.query.filter(User.is_admin==1).order_by(User.last_name, User.first_name).all()
+    members = User.query.filter(User.is_admin==0).order_by(User.last_name, User.first_name).all()
     # only show this page and accept post requests if the user is an admin
     if current_user.is_admin:
         # if the delete form is submitted...
-        if delete_form.validate_on_submit:
-            print("Delete User")
+        if delete_form.validate_on_submit():
+            # Get the user to be deleted
+            user = User.query.filter(User.username==delete_form.username_delete.data).first()
+            # delete this user from the db
+            db.session.delete(user)
+            db.session.commit()
+            flash("User Deleted.")
+            return redirect(url_for('admin'))
+        elif admin_form.validate_on_submit(): # if the admin form is committed
+            # get the user to have their admin status changed
+            user = User.query.filter(User.username==admin_form.username_admin.data).first()
+            # set their is_admin tag to be the opposite of what it currently is
+            user.is_admin = not user.is_admin
+            db.session.commit()
+            flash("Admin Privileges Updated.")
+            return redirect(url_for('admin'))
         elif email_form.validate_on_submit(): # if the email form is submitted...
-            print("Email User")
-        return render_template('admin.html', title='Manage Organization', delete_form=delete_form, email_form=email_form, admins=admins, members=members)
+            msg = Message(subject=email_form.subject.data, sender='phipsi.surveillancetesting@gmail.com', cc=[current_user.email], recipients=[email_form.email.data], body=email_form.body.data)
+            mail.send(msg)
+            flash("Email sent successfully")
+            return redirect(url_for('help'))
+        return render_template('admin.html', title='Manage Organization', delete_form=delete_form, email_form=email_form, admin_form=admin_form, admins=admins, members=members)
     else:
         # if user is not an admin, flash error and redirect them to the home page
         flash("You must be an administrator for your organization to view this page.")
@@ -336,30 +387,47 @@ def admin():
 @login_required
 def profile():
     """ route to the profile page, includes logic to edit profile """
-    # instantiate the edit profile form
-    form = EditProfileForm()
+    # instantiate the forms
+    edit_form = EditProfileForm()
+    password_form = ChangePasswordForm()
     # if the form is submitted
-    if form.validate_on_submit():
+    if edit_form.validate_on_submit():
         # get the current user
         user = User.query.filter_by(id=current_user.id).first()
         # set the user info to match the data from the form
-        user.username = form.username.data
-        user.email = form.email.data
-        user.first_name = form.first_name.data
-        user.last_name = form.last_name.data
+        user.username = edit_form.username.data
+        user.email = edit_form.email.data
+        user.first_name = edit_form.first_name.data
+        user.last_name = edit_form.last_name.data
         # update this record in the database
         db.session.commit()
         # flash success message and reload page
         flash('Your profile has been updated.')
         return redirect(url_for('profile'))
+    elif password_form.validate_on_submit():
+        # get the current user
+        user = User.query.filter_by(id=current_user.id).first()
+        # check that the password hashes match
+        if user.check_password(password_form.old_password.data):
+            if (password_form.new_password.data != password_form.repeat_password.data):
+                flash('The passwords you entered do not match.')
+                return redirect(url_for('profile'))
+            # set the new password
+            user.set_password(password_form.new_password.data)
+            db.session.commit()
+            flash('Your password has been successfully updated.')
+            return redirect(url_for('profile'))
+        else:
+            flash('The current password that you entered is incorrect.')
+            return redirect(url_for('profile'))
     elif request.method == 'GET': # else if its a get request...
         # populate form with current user data
-        form.username.data = current_user.username
-        form.email.data = current_user.email
-        form.first_name.data = current_user.first_name
-        form.last_name.data = current_user.last_name
+        edit_form.username.data = current_user.username
+        edit_form.email.data = current_user.email
+        edit_form.first_name.data = current_user.first_name
+        edit_form.last_name.data = current_user.last_name
     # render the page with the appropriate variables
-    return render_template('profile.html', title='My Profile', form=form)
+    return render_template('profile.html', title='My Profile', edit_form=edit_form, password_form=password_form)
 
 
 """ ------------------------- Helper Functions ------------------------- """
@@ -370,7 +438,8 @@ def populate_user_info():
     scheduled_tests = CovidTest.query.filter_by(userid=current_user.id).order_by(CovidTest.scheduled_date.asc()).all()
     total_scheduled = len(scheduled_tests)
     # get a list of all scheduled tests in the future (date is today or later)
-    upcoming_tests = CovidTest.query.filter(CovidTest.userid==current_user.id, CovidTest.scheduled_date >= datetime.now().date()).order_by(CovidTest.scheduled_date.asc()).all()
+    upcoming_tests = CovidTest.query.filter(CovidTest.userid==current_user.id, CovidTest.scheduled_date >= date.today()).order_by(CovidTest.scheduled_date.desc()).all()
+    past_tests = CovidTest.query.filter(CovidTest.userid==current_user.id, CovidTest.scheduled_date < date.today()).order_by(CovidTest.scheduled_date.desc()).all()
     # get the number of positive, negative, inconclusive, and not reported tests & their relative percentages for this user
     if (total_scheduled > 0):
         # get counts and percentages of each test result
@@ -396,16 +465,58 @@ def populate_user_info():
         unreported_count = 0
         unreported_percentage = "0%"
     # declare user_info dictionary to store all user data we wish to display on the page
-    user_info = {"scheduled_tests": scheduled_tests, "total_scheduled": total_scheduled, "upcoming_tests": upcoming_tests, "positive_count": positive_count, "positive_percentage": positive_percentage, "negative_count": negative_count, "negative_percentage": negative_percentage, "inconclusive_count": inconclusive_count, "inconclusive_percentage": inconclusive_percentage, "unreported_count": unreported_count, "unreported_percentage": unreported_percentage}
+    user_info = {"scheduled_tests": scheduled_tests, "total_scheduled": total_scheduled, "upcoming_tests": upcoming_tests, "past_tests": past_tests, "positive_count": positive_count, "positive_percentage": positive_percentage, "negative_count": negative_count, "negative_percentage": negative_percentage, "inconclusive_count": inconclusive_count, "inconclusive_percentage": inconclusive_percentage, "unreported_count": unreported_count, "unreported_percentage": unreported_percentage}
     return user_info
 
 def populate_organization_info():
     """ Helper function that populates and returns a dictionary with the appropriate organization information """
     # get a list of all scheduled tests for this organization
-    scheduled_tests = CovidTest.query.join(User, CovidTest.userid==User.id).filter(User.organization == current_user.organization).order_by(CovidTest.scheduled_date.asc()).all()
+    scheduled_tests = CovidTest.query.join(User, CovidTest.userid==User.id).order_by(CovidTest.scheduled_date.asc()).all()
     # declare org_info dictionary to store all organization data we wish to display on the page
     org_info = {}
     return org_info
+
+""" ------------------------- Scheduler + Functions ------------------------- """
+#scheduler.add_job(email_admins_sched, day_of_week='fri', hour=9)
+
+def email_users_sched():
+    """ Function to email all of the users that haven't scheduled a surveillance test this week (executes on Thursdays) """
+    with app.app_context():
+        # get the dates of the beginning and end of the week
+        monday_date = date.today() - timedelta(days=3)
+        friday_date = date.today() + timedelta(days=1)
+        # get a subquery of the userids for user's that have signed up for a test this week
+        tests = db.session.query(CovidTest.userid).filter(CovidTest.scheduled_date>=monday_date, CovidTest.scheduled_date<=friday_date).subquery()
+        # using the subquery, get a list of users that have NOT signed up for a test this week
+        user_list = User.query.filter(User.id.notin_(tests)).all()
+        # email these users a reminder
+        msg = Message(subject="Sign Up for Surveillance Testing", sender='phipsi.surveillancetesting@gmail.com', bcc=[user.email for user in user_list], recipients=["phipsi.surveillancetesting.gmail.com"], html="<p>This email serves as a reminder to sign up for surveillance testing, as you have not yet registered for this week.</p> <p>Visit the  <a href='https://etang.berkeley.edu/home.aspx'>eTang Portal</a> to schedule a test, and be sure to report it to the system once registered.</p>")
+        mail.send(msg)
+
+def email_admins_sched():
+    """ Function to email admins of the users that haven't scheduled a surveillance test this week (executes on Fridays) """
+    with app.app_context():
+        # get the dates of the beginning and end of the week
+        monday_date = date.today() - timedelta(days=4)
+        friday_date = date.today()
+        # get a subquery of the userids for user's that have signed up for a test this week
+        tests = db.session.query(CovidTest.userid).filter(CovidTest.scheduled_date>=monday_date, CovidTest.scheduled_date<=friday_date).subquery()
+        # using the subquery, get a list of users that have NOT signed up for a test this week
+        user_list = User.query.filter(User.id.notin_(tests)).all()
+        name_str = '\n'.join([user.first_name + " " + user.last_name for user in user_list])
+        admin_list = User.query.filter(User.is_admin==1).all()
+        # email these users a reminder
+        msg = Message(subject="Weekly Surveillance Testing Digest", sender='phipsi.surveillancetesting@gmail.com', recipients=[admin.email for admin in admin_list], body="Here is a list of members that did not register a scheduled test for this week:\n"+name_str)
+        mail.send(msg)
+
+# Declare the scheduler
+scheduler = BackgroundScheduler()
+# Schedule the app to email users that haven't signed up for testing this week every Thursday at 9am PT (4pm UTC)
+scheduler.add_job(email_users_sched, 'cron', day_of_week=3, hour=16, timezone='UTC')
+# Schedule the app to email the admin test schedule info every Friday at 5pm PT (12am UTC the next day)
+scheduler.add_job(email_admins_sched, 'cron', day_of_week=5, hour=0, timezone='UTC')
+# Start the scheduler
+scheduler.start()
 
 
 """ ------------------------- Run App Locally ------------------------- """
@@ -418,4 +529,4 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True, use_reloader=False)

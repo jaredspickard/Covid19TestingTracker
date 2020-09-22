@@ -7,6 +7,95 @@
         <div class="col" style="text-align:left">
             <h1>Resources</h1>
         </div>
+        <div class="col" style="text-align:right">
+            <a target="_blank" class="btn btn-link pb-0" href="https://cdc.gov">
+                <span class="btn-inner--text">CDC Website</span>
+                <span class="btn-inner--icon"><i class="fas fa-external-link-alt"></i></span>
+            </a><br>
+            <a target="_blank" class="btn btn-link pt-0" href="https://covid-19.acgov.org/index.page">
+                <span class="btn-inner--text">Alameda County Guidelines</span>
+                <span class="btn-inner--icon"><i class="fas fa-external-link-alt"></i></span>
+            </a>
+        </div>
     </div>
-</div>
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+                            <h3 class="mb-2">COVID 19</h3>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="btn-group btn-group-toggle my-auto" data-toggle="buttons">
+                                <label class="btn btn-outline-dark btn-sm active" onclick="toggleSymptomsInfo()">
+                                    <input type="radio" name="options" id="option1" checked> Symptoms
+                                </label>
+                                <label class="btn btn-outline-dark btn-sm" onclick="togglePreventionInfo()">
+                                    <input type="radio" name="options" id="option2"> Prevention
+                                </label>
+                                <label class="btn btn-outline-dark btn-sm" onclick="toggleTreatmentInfo()">
+                                    <input type="radio" name="options" id="option2"> Treatment
+                                </label>
+                            </div>
+                        </div>
+                    </div><hr>
+                    <div class="row">
+                        <div id="symptomsInfo" class="col">
+                            <h5>COVID-19 affects different people in different ways.</h5> 
+                            <h5>Infected people have had a wide range of symptoms reported – from mild symptoms to severe illness.</h5>
+                            <h5>Symptoms may appear 2-14 days after exposure to the virus. People with these symptoms may have COVID-19:</h5>
+                            <ul>
+                                <li>Fever or chills</li>
+                                <li>Cough</li>
+                                <li>Shortness of breath or difficulty breathing</li>
+                                <li>Fatigue</li>
+                                <li>Muscle or body aches</li>
+                                <li>Headache</li>
+                                <li>New loss of taste or smell</li>
+                                <li>Sore throat</li>
+                                <li>Congestion or runny nose</li>
+                                <li>Nausea or vomiting</li>
+                                <li>Diarrhea</li>
+                            </ul><br>
+                            <h5>Look for emergency warning signs for COVID-19. If someone is showing any of these signs, seek emergency medical care immediately:</h5>
+                            <ul>
+                                <li>Trouble breathing</li>
+                                <li>Persistent pain or pressure in the chest</li>
+                                <li>New confusion</li>
+                                <li>Inability to wake or stay awake</li>
+                                <li>Bluish lips or face</li>
+                            </ul>
+                        </div>
+                        <div id="preventionInfo" class="col" style="display:none">
+                            <h5>The best way to prevent illness is to avoid being exposed to this virus. Learn how COVID-19 spreads and practice these actions to help prevent the spread of this illness.</h5>
+                            <h5>To help prevent the spread of COVID-19, everyone should:</h5>
+                            <ul>
+                                <li>Clean your hands often, either with soap and water for 20 seconds or a hand sanitizer that contains at least 60% alcohol.</li>
+                                <li>Avoid close contact with people who are sick.</li>
+                                <li>Put distance between yourself and other people (at least 6 feet).</li>
+                                <li>Cover your mouth and nose with a mask when around others.</li>
+                                <li>Cover your cough or sneeze with a tissue, then throw the tissue in the trash.</li>
+                                <li>Clean and disinfect frequently touched objects and surfaces daily.</li>
+                                <li>CDC recommends that people wear masks in public settings and when around people outside of their household, especially when other social distancing measures are difficult to maintain.</li>
+                                <li>Masks may help prevent people who have COVID-19 from spreading the virus to others.</li>
+                            </ul>
+                        </div>
+                        <div id="treatmentInfo" class="col" style="display:none">
+                            <h5>People with COVID-19 should receive supportive care to help relieve symptoms. There is no specific antiviral treatment recommended for COVID-19.</h5>
+                            <h5>If you have possible or confirmed COVID-19:</h5>
+                            <ul>
+                                <li>Stay home except to get medical care.</li>
+                                <li>Monitor your symptoms carefully. If your symptoms get worse, call your healthcare provider immediately.</li>
+                                <li>Get rest and stay hydrated. Take over-the-counter medicines, such as acetaminophen, to help you feel better.</li>
+                                <li>If you have a medical appointment, notify your healthcare provider ahead of time that you have or may have COVID-19.</li>
+                                <li>Stay in a specific room and away from other people in your home. If possible, use a separate bathroom. If you must be around others, wear a mask.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><br>
 {% endblock %}

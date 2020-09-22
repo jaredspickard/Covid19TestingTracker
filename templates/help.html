@@ -7,6 +7,12 @@
         <div class="col" style="text-align:left">
             <h1>Help</h1>
         </div>
+        <div class="col" style="text-align:right">
+            <button type="button" class="btn btn-primary btn-icon" data-toggle="modal" data-target="#emailAdminModal" onclick="populateAdminEmails('{{ admin_emails }}')">
+                <span class="btn-inner--icon"><i class="fas fa-envelope"></i></span>
+                <span class="btn-inner--text">Email Admin</span>
+            </button>
+        </div>
     </div>
     <div class="accordion" id="accordionExample">
         <div class="card">
@@ -83,21 +89,51 @@
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header bg-white" id="headingThree">
-                <h2 class="mb-0">
-                    <button class="btn btn-block text-left collapsed" style="justify-content: space-between; display:flex" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        <h3>How to Navigate this Website</h3><i class="fas fa-angle-down my-auto"></i>
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
-                <div class="card-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                </div>
+    </div>
+</div>
+<br>
+
+<div class="modal fade" id="emailAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Email Admin</h3></div>
+            <div class="modal-body">
+                <form action="" method="post" novalidate class="mx-auto" style="text-align:left">
+                    {{ form.hidden_tag() }}
+                    <p>
+                        <div class="row">
+                            <div class="col col-2" style="text-align:right">
+                                <div style="width:130%">{{ form.email.label }}:</div>
+                            </div>
+                            <div class="col col-10">
+                                {{ form.email(style="width:100%") }}
+                            </div>
+                        </div>
+                    </p>
+                    <p>
+                        <div class="row">
+                            <div class="col col-2" style="text-align:right;">
+                                <div style="width:130%">{{ form.subject.label }}:</div>
+                            </div>
+                            <div class="col col-10">
+                                {{ form.subject(style="width:100%") }}
+                            </div>
+                        </div>
+                    </p>
+                    <p>
+                        <div class="row">
+                            <div class="col col-2" style="text-align:right;">
+                                <div style="width:130%">{{ form.body.label }}:</div>
+                            </div>
+                            <div class="col col-10">
+                                {{ form.body(style="width:100%") }}
+                            </div>
+                        </div>
+                    </p><br>
+                    <p style="text-align:center;"><button type="button" class="btn" data-dismiss="modal">Cancel</button>{{ form.submit(class='btn btn-primary') }}</p>
+                </form>
             </div>
         </div>
     </div>
 </div>
-<br>
 {% endblock %}

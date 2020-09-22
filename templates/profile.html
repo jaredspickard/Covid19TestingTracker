@@ -7,12 +7,6 @@
         <div class="col" style="text-align:left">
             <h1>My Profile</h1>
         </div>
-        <div class="col" style="text-align:right">
-            <button type="button" class="btn btn-dark btn-icon my-auto" data-toggle="modal" data-target="#editProfileModal">
-                <span class="btn-inner--icon"><i class="far fa-edit"></i></span>
-                <span class="btn-inner--text">Edit Profile</span>
-            </button>
-        </div>
     </div>
     <div class="card">
         <div class="card-body mb-0">
@@ -25,19 +19,23 @@
                     <h5><span style="opacity: 0.7;"> Username: </span>{{ current_user.username }}</h5>
                     <h5><span style="opacity: 0.7;"> Full Name: </span>{{ current_user.first_name }} {{ current_user.last_name }}</h5>
                     <h5><span style="opacity: 0.7;"> Email: </span>{{ current_user.email }}</h5>
-                    <h5><span style="opacity: 0.7;"> Organization: </span>{{ current_user.organization }}</h5>
+                    <br>
+                    <button type="button" class="btn btn-outline-dark btn-icon my-auto" data-toggle="modal" data-target="#editProfileModal">
+                        <span class="btn-inner--icon"><i class="far fa-edit"></i></span>
+                        <span class="btn-inner--text">Edit Profile</span>
+                    </button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-outline-dark btn-icon my-auto" data-toggle="modal" data-target="#changePasswordModal">
+                        <span class="btn-inner--icon"><i class="fas fa-user-lock"></i></span>
+                        <span class="btn-inner--text">Change Password</span>
+                    </button>
                 </div>
-                <ul> Things to add
-                    <li>Email Settings</li>
-                    <li>Change Password?</li>
-                </ul>
             </div>
         </div>
     </div>
 </div>
 <br>
 
-<!-- Modal -->
+<!-- Edit Profile Modal -->
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -49,36 +47,77 @@
             </div>
             <div class="modal-body">
                 <form action="" method="post" novalidate class="mx-auto">
-                    {{ form.hidden_tag() }}
+                    {{ edit_form.hidden_tag() }}
                     <p class="mb-0" style="text-align:left">
-                        {{ form.username.label }}
-                        {{ form.username(size=32, class='form-control') }}<br>
-                        {% for error in form.username.errors %}
+                        {{ edit_form.username.label }}
+                        {{ edit_form.username(size=32, class='form-control') }}<br>
+                        {% for error in edit_form.username.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
                     </p>
                     <p class="mb-0" style="text-align:left">
-                        {{ form.email.label }}
-                        {{ form.email(size=32, class='form-control') }}<br>
-                        {% for error in form.email.errors %}
+                        {{ edit_form.email.label }}
+                        {{ edit_form.email(size=32, class='form-control') }}<br>
+                        {% for error in edit_form.email.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
                     </p>
                     <p class="mb-0" style="text-align:left">
-                        {{ form.first_name.label }}
-                        {{ form.first_name(size=32, class='form-control') }}<br>
-                        {% for error in form.first_name.errors %}
+                        {{ edit_form.first_name.label }}
+                        {{ edit_form.first_name(size=32, class='form-control') }}<br>
+                        {% for error in edit_form.first_name.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
                     </p>
                     <p class="mb-0" style="text-align:left">
-                        {{ form.last_name.label }}
-                        {{ form.last_name(size=32, class='form-control') }}<br>
-                        {% for error in form.last_name.errors %}
+                        {{ edit_form.last_name.label }}
+                        {{ edit_form.last_name(size=32, class='form-control') }}<br>
+                        {% for error in edit_form.last_name.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
                     </p>
-                    <p class="mb-0">{{ form.submit(class='btn btn-dark') }}</p>
+                    <p class="mb-0">{{ edit_form.submit(class='btn btn-dark') }}</p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Change Password</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="post" novalidate class="mx-auto">
+                    {{ password_form.hidden_tag() }}
+                    <p class="mb-0" style="text-align:left">
+                        {{ password_form.old_password.label }}
+                        {{ password_form.old_password(size=32, class='form-control') }}<br>
+                        {% for error in password_form.old_password.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="mb-0" style="text-align:left">
+                        {{ password_form.new_password.label }}
+                        {{ password_form.new_password(size=32, class='form-control') }}<br>
+                        {% for error in password_form.new_password.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="mb-0" style="text-align:left">
+                        {{ password_form.repeat_password.label }}
+                        {{ password_form.repeat_password(size=32, class='form-control') }}<br>
+                        {% for error in password_form.repeat_password.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="mb-0">{{ password_form.submit(class='btn btn-dark') }}</p>
                 </form>
             </div>
         </div>

@@ -5,7 +5,7 @@
 <div class="page-content mx-auto">
     <div class="row mb-4">
         <div class="col" style="text-align:left">
-            <h1>Manage {{current_user.organization}}</h1><hr>
+            <h1>Manage Phi Kappa Psi</h1><hr>
         </div>
     </div>
     <div class="row mb-4">
@@ -16,7 +16,7 @@
     <div class="row">
         {% for admin in admins %}
         <div class="col col-lg-4 col-md-6 col-sm-12 col-12">
-            <div class="card mb-4 mx-auto" style="text-align:center; max-width: 320px;">
+            <div class="card mb-4 mx-auto" style="text-align:center; width: 320px;">
                 <div class="card-body text-center">
                     <div class="avatar-parent-child">
                         <img class="avatar rounded-circle" src="{{ admin.avatar(64) }}">
@@ -24,17 +24,33 @@
                     <h5 class="mt-4 mb-1 card-title">{{ admin.first_name }} {{ admin.last_name }}</h5>
                     <p class="mb-0">{{ admin.username }}</p>
                     <p>{{ admin.email }}</p>
-                    <div class="row">
-                        <div class="col mr-2" style="text-align:right">
-                            <button type="button" class="btn btn-outline-dark btn-icon-only" data-toggle="modal" data-target="#emailUserModal" onclick="openEmailUserModal('{{ admin.email }}')">
+                    <div class="row mx-auto" style="width:90%">
+                        {% if (admin.username != current_user.username) %}
+                        <div class="col p-0" style="text-align:center">
+                            <button type="button" class="btn btn-outline-success btn-icon-only" data-toggle="modal" data-target="#userTestHistoryModal" onclick="openTestHistoryModal('{{ admin.username }}')">
+                                <span class="btn-inner--icon"><i class="fas fa-viruses"></i></span>
+                            </button>
+                        </div>
+                        <div class="col p-0" style="text-align:center">
+                            <button type="button" class="btn btn-outline-primary btn-icon-only" data-toggle="modal" data-target="#emailUserModal" onclick="openEmailUserModal('{{ admin.email }}')">
                                 <span class="btn-inner--icon"><i class="far fa-envelope"></i></span>
                             </button>
                         </div>
-                        <div class="col ml-2" style="text-align:left">
+                        <div class="col p-0" style="text-align:center">
+                            <button type="button" class="btn btn-outline-dark btn-icon-only" data-toggle="modal" data-target="#updateAdminModal" onclick="openUpdateAdminModal('{{ admin.username }}')">
+                                <span class="btn-inner--icon"><i class="fas fa-user-times"></i></span>
+                            </button>
+                        </div>
+                        <div class="col p-0" style="text-align:center">
                             <button type="button" class="btn btn-outline-danger btn-icon-only" data-toggle="modal" data-target="#deleteAccountModal" onclick="openDeleteUserModal('{{ admin.username }}')">
                                 <span class="btn-inner--icon"><i class="far fa-trash-alt"></i></span>
                             </button>
                         </div>
+                        {% else %}
+                        <div class="col mb-2" style="text-align:center">
+                            <small>(Your Account)</small>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -57,13 +73,23 @@
                     <h5 class="mt-4 mb-1 card-title">{{ member.first_name }} {{ member.last_name }}</h5>
                     <p class="mb-0">{{ member.username }}</p>
                     <p>{{ member.email }}</p>
-                    <div class="row">
-                        <div class="col mr-2" style="text-align:right">
-                            <button type="button" class="btn btn-outline-dark btn-icon-only" data-toggle="modal" data-target="#emailUserModal" onclick="openEmailUserModal('{{ member.email }}')">
+                    <div class="row mx-auto" style="width: 90%;">
+                        <div class="col p-0" style="text-align:center">
+                            <button type="button" class="btn btn-outline-success btn-icon-only" data-toggle="modal" data-target="#userTestHistoryModal" onclick="openTestHistoryModal('{{ member.username }}')">
+                                <span class="btn-inner--icon"><i class="fas fa-viruses"></i></span>
+                            </button>
+                        </div>
+                        <div class="col p-0" style="text-align:center">
+                            <button type="button" class="btn btn-outline-primary btn-icon-only" data-toggle="modal" data-target="#emailUserModal" onclick="openEmailUserModal('{{ member.email }}')">
                                 <span class="btn-inner--icon"><i class="far fa-envelope"></i></span>
                             </button>
                         </div>
-                        <div class="col ml-2" style="text-align:left">
+                        <div class="col p-0" style="text-align:center">
+                            <button type="button" class="btn btn-outline-dark btn-icon-only" data-toggle="modal" data-target="#updateAdminModal" onclick="openUpdateAdminModal('{{ member.username }}')">
+                                <span class="btn-inner--icon"><i class="fas fa-user-plus"></i></span>
+                            </button>
+                        </div>
+                        <div class="col p-0" style="text-align:center">
                             <button type="button" class="btn btn-outline-danger btn-icon-only" data-toggle="modal" data-target="#deleteAccountModal" onclick="openDeleteUserModal('{{ member.username }}')">
                                 <span class="btn-inner--icon"><i class="far fa-trash-alt"></i></span>
                             </button>
@@ -77,7 +103,19 @@
 </div>
 <br>
 
-<!-- Modal -->
+<!-- Test History Modal -->
+<div class="modal fade" id="userTestHistoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Test History</h3></div>
+            <div class="modal-body">
+                Testing history
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Account Modal -->
 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -85,12 +123,31 @@
             <div class="modal-body">
                 <form action="" method="post" novalidate class="mx-auto">
                     {{ delete_form.hidden_tag() }}
-                    {{ delete_form.username(style="display:none") }}<br>
+                    {{ delete_form.username_delete(style="display:none") }}<br>
                     <h5>
-                        Are you sure you want to delete <span id="usernameVisible">this user</span>?<br>
+                        Are you sure you want to delete <span id="usernameDeleteVisible">this user</span>?<br>
                     </h5><br>
-                    <p class="mb-0">{{ delete_form.submit(class='btn btn-danger') }}</p>
-                </form-->
+                    <p class="mb-0"><button type="button" class="btn" data-dismiss="modal">Cancel</button>{{ delete_form.submit(class='btn btn-danger') }}</p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update User Admin Status Modal -->
+<div class="modal fade" id="updateAdminModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Update Admin Status</h3></div>
+            <div class="modal-body">
+                <form action="" method="post" novalidate class="mx-auto">
+                    {{ admin_form.hidden_tag() }}
+                    {{ admin_form.username_admin(style="display:none") }}<br>
+                    <h5>
+                        Are you sure you want to update <span id="usernameAdminVisible">this user</span>'s admin status?<br>
+                    </h5><br>
+                    <p class="mb-0"><button type="button" class="btn" data-dismiss="modal">Cancel</button>{{ admin_form.submit(class='btn btn-success') }}</p>
+                </form>
             </div>
         </div>
     </div>
@@ -133,8 +190,8 @@
                             </div>
                         </div>
                     </p><br>
-                    <p>{{ email_form.submit(class='btn btn-dark') }}</p>
-                </form-->
+                    <p style="text-align:center;"><button type="button" class="btn" data-dismiss="modal">Cancel</button>{{ email_form.submit(class='btn btn-primary') }}</p>
+                </form>
             </div>
         </div>
     </div>

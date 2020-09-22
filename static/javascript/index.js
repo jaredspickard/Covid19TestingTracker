@@ -20,8 +20,16 @@ function toggleReportForm(name) {
  * Function that populates hidden username tag and visible username display in the deleteUserAccountModal
  */
 function openDeleteUserModal(username) {
-    document.getElementById("username").value = username;
-    document.getElementById("usernameVisible").innerHTML = username;
+    document.getElementById("username_delete").value = username;
+    document.getElementById("usernameDeleteVisible").innerHTML = username;
+}
+
+/*
+ * Function that populates hidden username tag and visible username display in the updateAdminStatusModal
+ */
+function openUpdateAdminModal(username) {
+    document.getElementById("username_admin").value = username;
+    document.getElementById("usernameAdminVisible").innerHTML = username;
 }
 
 /*
@@ -29,4 +37,42 @@ function openDeleteUserModal(username) {
  */
 function openEmailUserModal(email) {
     document.getElementById("email").value = email;
+}
+
+// ---------------------------- Functions for help.js -------------------------------
+
+/**
+ * Function to populate the To: field with emails of the admins
+ */
+function populateAdminEmails(adminEmails) {
+    document.getElementById("email").value = adminEmails;
+}
+
+// -------------------------- Functions for resources.js -----------------------------
+
+/**
+ * Function to show symptoms info
+ */
+function toggleSymptomsInfo() {
+    document.getElementById("preventionInfo").style.display = "none";
+    document.getElementById("treatmentInfo").style.display = "none";
+    document.getElementById("symptomsInfo").style.display = "block";
+}
+
+/**
+ * Function to show prevention info
+ */
+function togglePreventionInfo() {
+    document.getElementById("treatmentInfo").style.display = "none";
+    document.getElementById("symptomsInfo").style.display = "none";
+    document.getElementById("preventionInfo").style.display = "block";
+}
+
+/**
+ * Function to show treatment info
+ */
+function toggleTreatmentInfo() {
+    document.getElementById("preventionInfo").style.display = "none";
+    document.getElementById("symptomsInfo").style.display = "none";
+    document.getElementById("treatmentInfo").style.display = "block";
 }

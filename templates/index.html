@@ -81,21 +81,28 @@
         <div class="col col-lg-8 col-md-8 col-sm-12 col-12">
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title" style="text-align:left">{{ current_user.organization }} Testing History</h5><hr>
+                    <h5 class="card-title" style="text-align:left">Phi Kappa Psi Testing History</h5><hr>
                     Testing Information
                 </div>
             </div>
         </div>
         <div class="col col-lg-4 col-md-4 col-sm-12 col-12">
             <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title" style="text-align:left">Upcoming Tests</h5><hr>
+                <div class="card-body" style="height:400px; overflow-y: auto">
+                    <h5 class="card-title" style="text-align:left">Scheduled Tests</h5><hr>
                     {% if user_info.upcoming_tests %}
                         {% for test in user_info.upcoming_tests %}
                             <p>{{ test.scheduled_date }}</p>
                         {% endfor %}
                     {% else %}
                         <p>No Upcoming Tests</p>
+                    {% endif %}<hr>
+                    {% if user_info.past_tests %}
+                        {% for test in user_info.past_tests %}
+                            <p style="opacity: 0.6;">{{ test.scheduled_date }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>No Past Tests</p>
                     {% endif %}
                 </div>
             </div>
