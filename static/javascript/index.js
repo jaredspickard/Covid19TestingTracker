@@ -1,3 +1,10 @@
+$('#scheduled_date').datepicker({
+    weekStart: 1,
+    daysOfWeekHighlighted: "6,0",
+    autoclose: true,
+    todayHighlight: true,
+});
+
 /**
  * Function to toggle which form is visible on the report modal
  * @param {string} name: name indicating the form we wish to view

@@ -20,11 +20,11 @@
                           <input type="radio" name="options" id="option2"> Test Results
                         </label>
                     </div>
-                    <form id="scheduleForm" action="" method="post" novalidate class="mx-auto">
+                    <form id="scheduleForm" action="" method="post" novalidate class="mx-auto" autocomplete="off">
                         {{ sched_form.hidden_tag() }}
                         <p class="mb-2" style="text-align:left">
                             {{ sched_form.scheduled_date.label(class="mb-1") }} of Test
-                            {{ sched_form.scheduled_date(class="form-control", placeholder="MM/DD/YYYY", value="") }}<br>
+                            {{ sched_form.scheduled_date(class="form-control", placeholder="mm/dd/yyyy", value="") }}<br>
                             {% for error in sched_form.scheduled_date.errors %}
                                 <span style="color: red;">[{{ error }}]</span>
                             {% endfor %}
