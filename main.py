@@ -353,6 +353,7 @@ def admin():
     # get a list of the admins and general members
     admins = User.query.filter(User.is_admin==1).order_by(User.last_name, User.first_name).all()
     members = User.query.filter(User.is_admin==0).order_by(User.last_name, User.first_name).all()
+    user_info = get_all_users_info()
     # only show this page and accept post requests if the user is an admin
     if current_user.is_admin:
         # if the delete form is submitted...
@@ -475,6 +476,10 @@ def populate_organization_info():
     # declare org_info dictionary to store all organization data we wish to display on the page
     org_info = {}
     return org_info
+
+def get_all_users_info():
+    """ Function to get the user info for all users """
+    #userids = db.session.query(CovidTest.userid, CovidTest.count()).group_by()
 
 """ ------------------------- Scheduler + Functions ------------------------- """
 #scheduler.add_job(email_admins_sched, day_of_week='fri', hour=9)
