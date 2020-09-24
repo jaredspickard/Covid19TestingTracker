@@ -62,8 +62,6 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     is_admin = db.Column(db.Boolean, index=True, default=False) # boolean representing whether they're an admin
     password_hash = db.Column(db.String(128)) 
-    organization = db.Column(db.String(64), index=True) # plan to delete this when I switch to Postgres
-    is_verified = db.Column(db.Boolean()) # plan to delete this when I switch to Postgres
     covid_tests = db.relationship('CovidTest', backref='user', lazy='dynamic') # declares a one to many relationship between users and covid tests
 
     def __repr__(self):
@@ -95,7 +93,7 @@ class CovidTest(db.Model):
 
     def __repr__(self):
         """ String representation of the CovidTest class """
-        return 'Test on {} came back: {}'.format(self.scheduled_date, self.result)
+        return '{} - {}'.format(self.scheduled_date, self.result)
 
 @login.user_loader
 def load_user(id):
@@ -353,7 +351,7 @@ def admin():
     # get a list of the admins and general members
     admins = User.query.filter(User.is_admin==1).order_by(User.last_name, User.first_name).all()
     members = User.query.filter(User.is_admin==0).order_by(User.last_name, User.first_name).all()
-    user_info = get_all_users_info()
+    users_info = get_all_users_info()
     # only show this page and accept post requests if the user is an admin
     if current_user.is_admin:
         # if the delete form is submitted...
@@ -377,8 +375,8 @@ def admin():
             msg = Message(subject=email_form.subject.data, sender='phipsi.surveillancetesting@gmail.com', cc=[current_user.email], recipients=[email_form.email.data], body=email_form.body.data)
             mail.send(msg)
             flash("Email sent successfully")
-            return redirect(url_for('help'))
-        return render_template('admin.html', title='Manage Organization', delete_form=delete_form, email_form=email_form, admin_form=admin_form, admins=admins, members=members)
+            return redirect(url_for('admin'))
+        return render_template('admin.html', title='Manage Organization', delete_form=delete_form, email_form=email_form, admin_form=admin_form, admins=admins, members=members, users_info=users_info)
     else:
         # if user is not an admin, flash error and redirect them to the home page
         flash("You must be an administrator for your organization to view this page.")
@@ -479,7 +477,19 @@ def populate_organization_info():
 
 def get_all_users_info():
     """ Function to get the user info for all users """
-    #userids = db.session.query(CovidTest.userid, CovidTest.count()).group_by()
+    users_info = {}
+    # get all users and fill their data into the users_info dictionary
+    users = User.query.all()
+    for user in users:
+        user_id = user.id
+        scheduled_tests = CovidTest.query.filter_by(userid=user_id).order_by(CovidTest.scheduled_date.desc()).all()
+        total_count = len(scheduled_tests)
+        positive_count = CovidTest.query.filter(CovidTest.userid==user_id, CovidTest.result=="Positive").count()
+        negative_count = CovidTest.query.filter(CovidTest.userid==user_id, CovidTest.result=="Negative/Not Detected").count()
+        inconclusive_count = CovidTest.query.filter(CovidTest.userid==user_id, CovidTest.result=="Inconclusive").count()
+        unreported_count = CovidTest.query.filter(CovidTest.userid==user_id, CovidTest.result=="Result Not Received").count()
+        users_info[user_id] = {"name": user.first_name + " " + user.last_name, "tests": scheduled_tests, "total_count": total_count, "positive_count": positive_count, "negative_count": negative_count, "inconclusive_count": inconclusive_count, "unreported_count": unreported_count}
+    return users_info
 
 """ ------------------------- Scheduler + Functions ------------------------- """
 #scheduler.add_job(email_admins_sched, day_of_week='fri', hour=9)

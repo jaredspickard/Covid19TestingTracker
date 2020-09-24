@@ -33,10 +33,29 @@ function openUpdateAdminModal(username) {
 }
 
 /*
- * Function that populates hidden email tag and visible email display in the deleteUserAccountModal EmailUserModal
+ * Function that populates email in the EmailUserModal
  */
 function openEmailUserModal(email) {
     document.getElementById("email").value = email;
+}
+
+/*
+ * Function that populates the testing history modal with the info passed in
+ */
+function openTestHistoryModal(name, total, pos, neg, inc, unrep, tests) {
+    document.getElementById("user_name").innerHTML = name;
+    document.getElementById("total_scheduled").innerHTML = total;
+    document.getElementById("total_positive").innerHTML = pos;
+    document.getElementById("total_negative").innerHTML = neg;
+    document.getElementById("total_inconclusive").innerHTML = inc;
+    document.getElementById("total_unreported").innerHTML = unrep;
+    var test_list = tests.slice(1,-1).split(',');
+    var test_html = "";
+    for (var i = 0; i < test_list.length; i++) {
+        test_html += "<div class='dropdown-item'>" + test_list[i] + "</div>"
+    }
+    document.getElementById("test_dates").innerHTML = test_html;
+    //document.getElementById("user_name").innerHTML = user_info["name"];
 }
 
 // ---------------------------- Functions for help.js -------------------------------

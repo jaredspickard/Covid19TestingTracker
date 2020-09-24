@@ -27,7 +27,7 @@
                     <div class="row mx-auto" style="width:90%">
                         {% if (admin.username != current_user.username) %}
                         <div class="col p-0" style="text-align:center">
-                            <button type="button" class="btn btn-outline-success btn-icon-only" data-toggle="modal" data-target="#userTestHistoryModal" onclick="openTestHistoryModal('{{ admin.username }}')">
+                            <button type="button" class="btn btn-outline-success btn-icon-only" data-toggle="modal" data-target="#userTestHistoryModal" onclick="openTestHistoryModal('{{ users_info[admin.id].name }}', '{{ users_info[admin.id].total_count }}', '{{ users_info[admin.id].positive_count }}', '{{ users_info[admin.id].negative_count }}', '{{ users_info[admin.id].inconclusive_count }}', '{{ users_info[admin.id].unreported_count }}', '{{ users_info[admin.id].tests }}')">
                                 <span class="btn-inner--icon"><i class="fas fa-viruses"></i></span>
                             </button>
                         </div>
@@ -75,7 +75,7 @@
                     <p>{{ member.email }}</p>
                     <div class="row mx-auto" style="width: 90%;">
                         <div class="col p-0" style="text-align:center">
-                            <button type="button" class="btn btn-outline-success btn-icon-only" data-toggle="modal" data-target="#userTestHistoryModal" onclick="openTestHistoryModal('{{ member.username }}')">
+                            <button type="button" class="btn btn-outline-success btn-icon-only" data-toggle="modal" data-target="#userTestHistoryModal" onclick="openTestHistoryModal('{{ users_info[member.id].name }}', '{{ users_info[member.id].total_count }}', '{{ users_info[member.id].positive_count }}', '{{ users_info[member.id].negative_count }}', '{{ users_info[member.id].inconclusive_count }}', '{{ users_info[member.id].unreported_count }}', '{{ users_info[member.id].tests }}')">
                                 <span class="btn-inner--icon"><i class="fas fa-viruses"></i></span>
                             </button>
                         </div>
@@ -107,9 +107,33 @@
 <div class="modal fade" id="userTestHistoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><h3>Test History</h3></div>
+            <div class="modal-header">
+                <h4 class="modal-title"><span id="user_name"></span> Test History</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="modal-body">
-                Testing history
+                <div class="row mb-2">
+                    <div class="col" style="text-align: left">
+                        <h6>Total Tests Scheduled: <b id="total_scheduled"></b></h6>
+                        <h6>Total Positive Results: <b id="total_positive"></b></h6>
+                        <h6>Total Negative/Not Detected Results: <b id="total_negative"></b></h6>
+                        <h6>Total Inconclusive Results: <b id="total_inconclusive"></b></h6>
+                        <h6>Total Unreported Results: <b id="total_unreported"></b></h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col" style="text-align:left">
+                        <div class="dropdown">
+                            <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              View Test Dates
+                            </button>
+                            <div class="dropdown-menu bg-light" aria-labelledby="dropdownMenuButton" id="test_dates">
+                            </div>
+                          </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -166,7 +190,7 @@
                                 <div style="width:130%">{{ email_form.email.label }}:</div>
                             </div>
                             <div class="col col-10">
-                                {{ email_form.email(readonly="true", style="width:100%") }}
+                                {{ email_form.email(disabled="true", style="width:100%") }}
                             </div>
                         </div>
                     </p>
