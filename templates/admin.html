@@ -129,7 +129,7 @@
                             <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               View Test Dates
                             </button>
-                            <div class="dropdown-menu bg-light" aria-labelledby="dropdownMenuButton" id="test_dates">
+                            <div class="dropdown-menu bg-light" style="max-height:180px; overflow-y:auto;" aria-labelledby="dropdownMenuButton" id="test_dates">
                             </div>
                           </div>
                     </div>
@@ -190,7 +190,7 @@
                                 <div style="width:130%">{{ email_form.email.label }}:</div>
                             </div>
                             <div class="col col-10">
-                                {{ email_form.email(disabled="true", style="width:100%") }}
+                                {{ email_form.email(readonly="true", style="width:100%") }}
                             </div>
                         </div>
                     </p>

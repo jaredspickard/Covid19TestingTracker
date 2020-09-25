@@ -228,7 +228,7 @@ def index():
     """ Route to the home page, also logic for reporting scheduled tests and test results """
     # populate the user info and org info dictionaries using data from the server
     user_info = populate_user_info()
-    organization_info = populate_organization_info()
+    org_info = populate_organization_info()
     # declare the possible forms to be used in the page
     sched_form = ReportTestingScheduleForm()
     result_form = ReportTestingResultsForm()
@@ -258,7 +258,7 @@ def index():
         flash("Thank you for reporting your test results from " + covid_test.scheduled_date.strftime("%m/%d/%Y"))
         return redirect(url_for('index'))
     # not a form submit? just render the template with the necessary variables
-    return render_template('index.html', title='Home', sched_form=sched_form, result_form=result_form, user_info=user_info, organization_info=organization_info)
+    return render_template('index.html', title='Home', sched_form=sched_form, result_form=result_form, user_info=user_info, org_info=org_info)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -471,8 +471,33 @@ def populate_organization_info():
     """ Helper function that populates and returns a dictionary with the appropriate organization information """
     # get a list of all scheduled tests for this organization
     scheduled_tests = CovidTest.query.join(User, CovidTest.userid==User.id).order_by(CovidTest.scheduled_date.asc()).all()
+    total_scheduled = len(scheduled_tests)
     # declare org_info dictionary to store all organization data we wish to display on the page
-    org_info = {}
+    # get the number of positive, negative, inconclusive, and not reported tests & their relative percentages for this user
+    if (total_scheduled > 0):
+        # get counts and percentages of each test result
+        # positive tests
+        positive_count = CovidTest.query.filter(CovidTest.result=="Positive").count()
+        positive_percentage = str(100*positive_count / total_scheduled) + "%"
+        # negative/not detected tests
+        negative_count = CovidTest.query.filter(CovidTest.result=="Negative/Not Detected").count()
+        negative_percentage = str(100*negative_count / total_scheduled) + "%"
+        # inconclusive tests
+        inconclusive_count = CovidTest.query.filter(CovidTest.result=="Inconclusive").count()
+        inconclusive_percentage = str(100*inconclusive_count / total_scheduled) + "%"
+        # unreported tests
+        unreported_count = CovidTest.query.filter(CovidTest.result=="Result Not Received").count()
+        unreported_percentage = str(100*unreported_count / total_scheduled) + "%"
+    else: # if no tests, set all to 0 (separate statement to avoid divide by 0 error)
+        positive_count = 0
+        positive_percentage = "0%"
+        negative_count = 0
+        negative_percentage = "0%"
+        inconclusive_count = 0
+        inconclusive_percentage = "0%"
+        unreported_count = 0
+        unreported_percentage = "0%"
+    org_info = {"scheduled_tests": scheduled_tests, "total_scheduled": total_scheduled, "positive_count": positive_count, "positive_percentage": positive_percentage, "negative_count": negative_count, "negative_percentage": negative_percentage, "inconclusive_count": inconclusive_count, "inconclusive_percentage": inconclusive_percentage, "unreported_count": unreported_count, "unreported_percentage": unreported_percentage}
     return org_info
 
 def get_all_users_info():
