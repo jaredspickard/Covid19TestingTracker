@@ -12,7 +12,6 @@ from flask_login import LoginManager, current_user, login_user, logout_user, log
 from werkzeug.urls import url_parse
 from flask_mail import Mail, Message
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask_datepicker import datepicker
 #from sqlalchemy_utils.types.encrypted.encrypted_type import EncryptedType
 
 """ -------------------- Declare the Config object (config.py) -------------------- """
@@ -23,7 +22,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'jfH78-68fGHPohka!lhaouHKL'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')#'postgresql:///app_db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
@@ -43,7 +42,6 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
 mail = Mail(app)
-datepicker(app)
 
 
 """ -------------------- Declare the models to be used (models.py) -------------------- """
